@@ -24,7 +24,7 @@ router = APIRouter(prefix="/analytics", tags=["analytics"])
 
 @router.get("/trends")
 def get_trends(
-    period: str = Query("24h", regex="^(24h|7d|30d)$"),
+    period: str = Query("24h", pattern="^(24h|7d|30d)$"),
     camera_id: Optional[str] = None,
     violation_type: Optional[str] = None,
 ):
