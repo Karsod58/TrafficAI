@@ -15,7 +15,7 @@ function App() {
 
   useEffect(() => {
     // WebSocket connection indicator
-    const ws = new WebSocket('ws://localhost:8000/ws');
+    const ws = new WebSocket(process.env.REACT_APP_WS_URL || 'ws://localhost:8000/ws');
     
     ws.onopen = () => setWsConnected(true);
     ws.onclose = () => setWsConnected(false);

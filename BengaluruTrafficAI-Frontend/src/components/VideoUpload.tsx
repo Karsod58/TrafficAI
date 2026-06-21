@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import './VideoUpload.css';
 import { Upload, Youtube, Link, CheckCircle, XCircle, Loader, FileVideo, Trash2 } from 'lucide-react';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 interface UploadJob {
   job_id: string;

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Search, Filter, Eye, CheckCircle, XCircle } from 'lucide-react';
 import './ViolationsList.css';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 interface Violation {
   id: number;

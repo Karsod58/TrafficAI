@@ -4,7 +4,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import { AlertTriangle, CheckCircle, Clock, TrendingUp, Camera, DollarSign } from 'lucide-react';
 import './Dashboard.css';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 interface Stats {
   total_today: number;
@@ -41,7 +41,7 @@ const Dashboard: React.FC = () => {
     fetchRecentViolations();
     
     // WebSocket for real-time updates
-    const ws = new WebSocket('ws://localhost:8000/ws');
+    const ws = new WebSocket(process.env.REACT_APP_WS_URL || 'ws://localhost:8000/ws');
     
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);

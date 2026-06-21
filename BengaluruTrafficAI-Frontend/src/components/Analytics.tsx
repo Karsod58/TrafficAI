@@ -18,7 +18,7 @@ import {
 import { Calendar, TrendingUp, MapPin, FileText } from 'lucide-react';
 import './Analytics.css';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#ef4444'];
 

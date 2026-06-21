@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Camera as CameraIcon, MapPin, Activity, AlertCircle } from 'lucide-react';
 import './CameraView.css';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 interface Camera {
   camera_id: string;
