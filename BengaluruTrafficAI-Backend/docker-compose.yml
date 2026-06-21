@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # FastAPI Backend
+  api:
+    build: .
+    container_name: bengaluru_traffic_api
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@db:5432/bengaluru_traffic
+    volumes:
+      - ./output:/app/output
+      - ./bengaluru_traffic.db:/app/bengaluru_traffic.db
+    depends_on:
+      - db
+    restart: unless-stopped
+    networks:
+      - traffic_network
+
+  # PostgreSQL Database (optional - can use SQLite)
+  db:
+    image: postgres:15-alpine
+    container_name: bengaluru_traffic_db
+    environment:
+      - POSTGRES_DB=bengaluru_traffic
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    networks:
+      - traffic_network
+
+  # Redis for caching and task queue (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: bengaluru_traffic_redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - traffic_network
+
+  # CV Pipeline Runner (optional - can run separately)
+  # cv_pipeline:
+  #   build: .
+  #   container_name: bengaluru_traffic_cv
+  #   command: python main.py --source 0 --camera cam_docker --no-show
+  #   environment:
+  #     - API_URL=http://api:8000
+  #   volumes:
+  #     - ./output:/app/output
+  #   depends_on:
+  #     - api
+  #   restart: unless-stopped
+  #   networks:
+  #     - traffic_network
+
+volumes:
+  postgres_data:
+
+networks:
+  traffic_network:
+    driver: bridge

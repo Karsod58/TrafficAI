@@ -1,0 +1,95 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environment - CRITICAL: Never commit!
+venv/
+env/
+ENV/
+.venv/
+*/venv/
+*/env/
+BengaluruTrafficAI-Backend/venv/
+
+# Frontend dependencies
+node_modules/
+/.pnp
+.pnp.js
+**/node_modules/
+BengaluruTrafficAI-Frontend/node_modules/
+
+# Testing
+/coverage
+**/coverage/
+
+# Production builds
+/build
+**/build/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Model weights (large files - download separately)
+*.pt
+*.pth
+*.onnx
+*.pb
+
+# Evidence and uploads (generated content)
+**/output/evidence/*.jpg
+**/output/evidence/*.json
+**/uploads/*.mp4
+**/uploads/*.avi
+**/uploads/*.mov
+**/uploads/*.mkv
+**/uploads/*.webm
+
+# Keep folder structure
+!**/output/evidence/.gitkeep
+!**/uploads/.gitkeep
+
+# Logs
+*.log
+logs/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.code-workspace
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archives
+*.zip
+*.tar
+*.gz
+
+# Git
+.git/
+
+# Git backup
+.git.backup/
+

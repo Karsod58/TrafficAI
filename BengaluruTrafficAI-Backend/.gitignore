@@ -1,0 +1,82 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environment - NEVER commit this!
+venv/
+env/
+ENV/
+.venv/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.code-workspace
+
+# Build directories
+build/
+dist/
+out/
+
+# Dependency directories
+node_modules/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Evidence and uploads (generated files)
+output/evidence/*.jpg
+output/evidence/*.json
+uploads/*.mp4
+uploads/*.avi
+uploads/*.mov
+uploads/*.mkv
+uploads/*.webm
+
+# Keep folder structure
+!output/evidence/.gitkeep
+!uploads/.gitkeep
+
+# Model weights (large files - download separately)
+*.pt
+*.pth
+*.onnx
+*.pb
+
+# Archives
+*.zip
+*.tar
+*.gz
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
