@@ -176,7 +176,9 @@ const Analytics: React.FC = () => {
               <div className="summary-label">Auto Approved</div>
               <div className="summary-value">{summary.auto_approved}</div>
               <div className="summary-subtext">
-                {((summary.auto_approved / summary.total_violations) * 100).toFixed(1)}% of total
+                {summary.total_violations > 0 
+                  ? ((summary.auto_approved / summary.total_violations) * 100).toFixed(1) 
+                  : 0}% of total
               </div>
             </div>
           </div>
@@ -189,7 +191,9 @@ const Analytics: React.FC = () => {
               <div className="summary-label">Pending Review</div>
               <div className="summary-value">{summary.pending_review}</div>
               <div className="summary-subtext">
-                {((summary.pending_review / summary.total_violations) * 100).toFixed(1)}% of total
+                {summary.total_violations > 0
+                  ? ((summary.pending_review / summary.total_violations) * 100).toFixed(1)
+                  : 0}% of total
               </div>
             </div>
           </div>
