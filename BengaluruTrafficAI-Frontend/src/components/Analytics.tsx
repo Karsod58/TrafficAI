@@ -99,6 +99,25 @@ const Analytics: React.FC = () => {
     );
   }
 
+  // Show message if no data
+  if (!summary || !trendData) {
+    return (
+      <div className="analytics">
+        <div className="analytics-header">
+          <h2>Analytics & Insights</h2>
+        </div>
+        <div className="no-data" style={{ 
+          textAlign: 'center', 
+          padding: '60px 20px',
+          color: '#9ca3af' 
+        }}>
+          <h3>No violation data available yet</h3>
+          <p>Upload a video or process some violations to see analytics</p>
+        </div>
+      </div>
+    );
+  }
+
   // Prepare trend chart data
   const trendChartData = trendData
     ? trendData.labels.map((label, index) => {
@@ -111,18 +130,20 @@ const Analytics: React.FC = () => {
     : [];
 
   // Prepare severity pie chart data
-  const severityData = summary
+  const severityData = summary && summary.by_severity
     ? [
-        { name: 'Critical', value: summary.by_severity.critical },
-        { name: 'High', value: summary.by_severity.high },
-        { name: 'Medium', value: summary.by_severity.medium },
-        { name: 'Low', value: summary.by_severity.low },
+        { name: 'Critical', value: summary.by_severity.critical || 0 },
+        { name: 'High', value: summary.by_severity.high || 0 },
+        { name: 'Medium', value: summary.by_severity.medium || 0 },
+        { name: 'Low', value: summary.by_severity.low || 0 },
       ]
     : [];
 
   // Prepare top violations bar chart
-  const topViolationsData = summary?.top_violations.map((v) => ({
+  const topViolationsData = summary?.top_violations?.map((v) => ({
     type: v.type.replace(/_/g, ' '),
+    count: v.count,
+  })) || [];
     count: v.count,
   }));
 
