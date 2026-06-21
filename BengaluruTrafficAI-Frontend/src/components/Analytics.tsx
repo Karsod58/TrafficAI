@@ -63,11 +63,13 @@ const Analytics: React.FC = () => {
   const [heatmapData, setHeatmapData] = useState<HeatmapLocation[]>([]);
   const [summary, setSummary] = useState<Summary | null>(null);
   const [period, setPeriod] = useState<'24h' | '7d' | '30d'>('24h');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [summaryDays, setSummaryDays] = useState(7);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchAnalytics();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [period, summaryDays]);
 
   const fetchAnalytics = async () => {

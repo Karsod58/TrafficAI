@@ -36,6 +36,7 @@ const ViolationsList: React.FC = () => {
 
   useEffect(() => {
     fetchViolations();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchViolations = async () => {

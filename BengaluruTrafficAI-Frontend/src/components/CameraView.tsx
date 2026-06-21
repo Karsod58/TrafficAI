@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Camera, MapPin, Activity, AlertCircle } from 'lucide-react';
+import { Camera as CameraIcon, MapPin, Activity, AlertCircle } from 'lucide-react';
 import './CameraView.css';
 
 const API_BASE = 'http://localhost:8000';
@@ -86,7 +86,7 @@ const CameraView: React.FC = () => {
               onClick={() => setSelectedCamera(camera.camera_id)}
             >
               <div className="camera-icon">
-                <Camera size={20} />
+                <CameraIcon size={20} />
               </div>
               <div className="camera-info">
                 <h4>{camera.name}</h4>
@@ -198,7 +198,7 @@ const CameraView: React.FC = () => {
           </>
         ) : (
           <div className="no-data">
-            <Camera size={48} />
+            <CameraIcon size={48} />
             <p>Select a camera to view details</p>
           </div>
         )}
