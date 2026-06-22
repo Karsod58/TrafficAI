@@ -144,8 +144,6 @@ const Analytics: React.FC = () => {
     type: v.type.replace(/_/g, ' '),
     count: v.count,
   })) || [];
-    count: v.count,
-  }));
 
   return (
     <div className="analytics">
