@@ -100,11 +100,26 @@ def run(
 
     # ── Initialise components ─────────────────────────────────────────────────
     
-    # Preprocessing layer
+    # Preprocessing layer with automatic quality detection
     preprocessor = None
     if enable_preprocessing:
         source_normalized, source_type = MultiSourceIngestion.normalize_source(str(source))
-        preproc_config = MultiSourceIngestion.get_optimal_config(source_type)
+        
+        # Auto-detect video quality for local files
+        if source_type == "file":
+            try:
+                from core.low_res_handler import LowResolutionHandler
+                handler = LowResolutionHandler()
+                quality_info = handler.analyze_video(str(source))
+                handler.print_quality_report(quality_info)
+                preproc_config = handler.get_optimal_config(quality_info)
+                logger.info(f"Auto-configured for {quality_info.quality_tier} quality video")
+            except Exception as e:
+                logger.warning(f"Quality detection failed: {e}, using default config")
+                preproc_config = MultiSourceIngestion.get_optimal_config(source_type)
+        else:
+            preproc_config = MultiSourceIngestion.get_optimal_config(source_type)
+        
         preprocessor = VideoPreprocessor(preproc_config)
         logger.info(f"Preprocessing enabled for source type: {source_type}")
     
