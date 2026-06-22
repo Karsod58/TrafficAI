@@ -101,15 +101,34 @@ class ALPRModule:
         """
         Full ALPR pipeline on one vehicle detection.
         Returns PlateResult or None if no plate found.
+        
+        Includes quality checks to skip low-quality crops.
         """
         # 1. Crop vehicle region
         vehicle_crop = self._crop_vehicle(frame, vehicle_bbox)
         if vehicle_crop is None:
             return None
+        
+        # QUALITY CHECK 1: Skip if crop is too small
+        crop_h, crop_w = vehicle_crop.shape[:2]
+        if crop_w < 80 or crop_h < 60:
+            logger.debug(f"Skipping ALPR: crop too small ({crop_w}x{crop_h})")
+            return None
+        
+        # QUALITY CHECK 2: Check if crop is blurry (Laplacian variance)
+        if not self._is_image_sharp(vehicle_crop):
+            logger.debug("Skipping ALPR: image too blurry")
+            return None
 
         # 2. Detect plate region
         plate_crop, plate_bbox = self._detect_plate(vehicle_crop, vehicle_bbox)
         if plate_crop is None:
+            return None
+        
+        # QUALITY CHECK 3: Validate plate crop quality
+        plate_h, plate_w = plate_crop.shape[:2]
+        if plate_w < 30 or plate_h < 8:
+            logger.debug(f"Skipping ALPR: plate crop too small ({plate_w}x{plate_h})")
             return None
 
         # 3. Preprocess plate crop
@@ -147,6 +166,38 @@ class ALPRModule:
         return results
 
     # ── Internal helpers ───────────────────────────────────────────────────────
+    
+    def _is_image_sharp(self, image: np.ndarray, threshold: float = 100.0) -> bool:
+        """
+        Check if image is sharp enough for OCR using Laplacian variance.
+        
+        Args:
+            image: Input image (BGR or grayscale)
+            threshold: Minimum variance threshold (default 100.0)
+                      - Below 100: Very blurry
+                      - 100-200: Slightly blurry
+                      - Above 200: Sharp
+        
+        Returns:
+            True if image is sharp enough, False otherwise
+        """
+        if image is None or image.size == 0:
+            return False
+        
+        # Convert to grayscale if needed
+        if len(image.shape) == 3:
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        else:
+            gray = image
+        
+        # Calculate Laplacian variance (measure of edge strength)
+        laplacian_var = cv2.Laplacian(gray, cv2.CV_64F).var()
+        
+        is_sharp = laplacian_var >= threshold
+        if not is_sharp:
+            logger.debug(f"Image sharpness: {laplacian_var:.1f} (threshold={threshold})")
+        
+        return is_sharp
 
     def _crop_vehicle(self, frame: np.ndarray, bbox) -> Optional[np.ndarray]:
         h, w = frame.shape[:2]
