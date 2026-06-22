@@ -63,14 +63,16 @@ def build_demo_roi(camera_id: str = "demo") -> ROIManager:
     """
     Default ROI config for demo mode (no JSON file).
     Adjust coordinates to match your actual video resolution.
+    For 960x540 videos, uses center 60% of frame for signal box.
     """
     roi = ROIManager(camera_id)
-    # Stop line at y=380 (horizontal) — tune to your video
-    roi.add_stop_line([(50, 380), (1230, 380)], name="stop_line_main")
+    # Stop line at 70% down from top (works for 960x540 and 1280x720)
+    roi.add_stop_line([(50, 380), (910, 380)], name="stop_line_main")
     # No-parking zone on left shoulder
-    roi.add_no_parking([(0, 100), (120, 100), (120, 500), (0, 500)], name="no_park_left")
-    # Signal box — centre junction area
-    roi.add_signal_box([(300, 200), (900, 200), (900, 380), (300, 380)], name="signal_box_main")
+    roi.add_no_parking([(0, 100), (120, 100), (120, 400), (0, 400)], name="no_park_left")
+    # Signal box — centre junction area (adjusted for typical intersection)
+    # Covers center 60% of frame width, top 30% to 75% of frame height
+    roi.add_signal_box([(200, 150), (760, 150), (760, 400), (200, 400)], name="signal_box_main")
     return roi
 
 

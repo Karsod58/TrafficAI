@@ -298,7 +298,8 @@ class RedLightDetector(BaseViolationDetector):
         red_ratio  = red_pixels / max(total, 1)
 
         # Threshold tuned for typical Indian signal brightness
-        return red_ratio > 0.008
+        # Lowered from 0.008 to 0.003 for better sensitivity
+        return red_ratio > 0.003
 
 
 # ─────────────────────────────────────────────────────────────────────────────

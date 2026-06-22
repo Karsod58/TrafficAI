@@ -209,18 +209,38 @@ docker run -p 3000:3000 traffic-frontend
 - **No module named 'fastapi'**: Run `pip install -r requirements.txt`
 - **OpenCV error on Windows**: Don't use `--show` flag
 - **Database connection error**: Check DATABASE_URL in .env
+- **Red light violations not detected**: See `RED_LIGHT_FIX_GUIDE.md` for complete troubleshooting
+
+### Red Light Detection Issues
+If red light violations are not being detected:
+1. **Test signal detection**: `python test_signal_detection.py video.mp4`
+2. **Configure ROI**: `python tools/quick_roi_setup.py video.mp4`
+3. **Run with ROI**: `python main.py --source video.mp4 --roi rois/video_roi.json --show`
+
+See **RED_LIGHT_FIX_GUIDE.md** for detailed instructions.
 
 ### Frontend Issues
 - **Module not found**: Run `npm install`
 - **API connection failed**: Ensure backend is running on port 8000
 - **CORS error**: Check CORS settings in backend api/app.py
+- **Analytics component crashes**: Ensure violations exist in database
 
 ## 📚 Documentation
 
+### Core Documentation
 - `ARCHITECTURE.md` - System architecture
-- `ALPR_IMPROVEMENT_GUIDE.md` - License plate recognition
+- `DEPLOYMENT_READY.md` - Deployment guide
+- `TRAINING_GUIDE.md` - Model training information
+
+### Feature Guides
+- `RED_LIGHT_FIX_GUIDE.md` - **Red light detection troubleshooting** (NEW)
+- `ALPR_AND_BATCH_IMPROVEMENTS.md` - License plate recognition & batch processing
 - `INNOVATIVE_FEATURES.md` - Traffic health score details
-- `INNOVATIVE_FEATURES_SHOWCASE.md` - Feature showcase
+- `PERFORMANCE_EVALUATION.md` - Performance metrics guide
+
+### Backend Tools
+- `test_signal_detection.py` - Test red signal detection
+- `tools/quick_roi_setup.py` - Interactive ROI configuration
 
 ## 👥 Support
 
