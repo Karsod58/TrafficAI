@@ -82,11 +82,15 @@ const Analytics: React.FC = () => {
       ]);
 
       setTrendData(trendsRes.data);
-      setHeatmapData(heatmapRes.data);
+      setHeatmapData(heatmapRes.data || []);
       setSummary(summaryRes.data);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching analytics:', error);
+      // Set empty data on error instead of crashing
+      setTrendData(null);
+      setHeatmapData([]);
+      setSummary(null);
       setLoading(false);
     }
   };
@@ -324,34 +328,36 @@ const Analytics: React.FC = () => {
       </div>
 
       {/* Heatmap */}
-      <div className="card">
-        <div className="card-header">
-          <h3 className="card-title">
-            <MapPin size={20} />
-            Violation Hotspots
-          </h3>
-        </div>
-        <div className="heatmap-list">
-          {heatmapData.map((location, index) => (
-            <div key={location.camera_id} className="heatmap-item">
-              <div className="heatmap-rank">#{index + 1}</div>
-              <div className="heatmap-info">
-                <h4>{location.name}</h4>
-                <p className="heatmap-location">{location.camera_id}</p>
-              </div>
-              <div className="heatmap-stats">
-                <div className="heatmap-count">{location.count || 0} violations</div>
-                <div className="heatmap-severity">
-                  Avg severity: {(location.severity_avg || 0).toFixed(1)}
+      {heatmapData && heatmapData.length > 0 && (
+        <div className="card">
+          <div className="card-header">
+            <h3 className="card-title">
+              <MapPin size={20} />
+              Violation Hotspots
+            </h3>
+          </div>
+          <div className="heatmap-list">
+            {heatmapData.map((location, index) => (
+              <div key={location.camera_id} className="heatmap-item">
+                <div className="heatmap-rank">#{index + 1}</div>
+                <div className="heatmap-info">
+                  <h4>{location.name}</h4>
+                  <p className="heatmap-location">{location.camera_id}</p>
+                </div>
+                <div className="heatmap-stats">
+                  <div className="heatmap-count">{location.count || 0} violations</div>
+                  <div className="heatmap-severity">
+                    Avg severity: {(location.severity_avg || 0).toFixed(1)}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Top Cameras */}
-      {summary && summary.top_cameras.length > 0 && (
+      {summary && summary.top_cameras && summary.top_cameras.length > 0 && (
         <div className="card">
           <div className="card-header">
             <h3 className="card-title">Most Active Cameras</h3>

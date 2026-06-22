@@ -156,7 +156,7 @@ const ViolationsList: React.FC = () => {
             <div className="violation-image">
               {violation.image_path ? (
                 <img
-                  src={`${API_BASE}/${violation.image_path}`}
+                  src={`${API_BASE}/evidence/${violation.image_path.split('/').pop()}`}
                   alt="Violation evidence"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300x200?text=No+Image';
@@ -260,9 +260,12 @@ const ViolationsList: React.FC = () => {
             <div className="modal-body">
               {selectedViolation.image_path && (
                 <img
-                  src={`${API_BASE}/${selectedViolation.image_path}`}
+                  src={`${API_BASE}/evidence/${selectedViolation.image_path.split('/').pop()}`}
                   alt="Violation evidence"
                   className="modal-image"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x300?text=Evidence+Image+Not+Found';
+                  }}
                 />
               )}
               
