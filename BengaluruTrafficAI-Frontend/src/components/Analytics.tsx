@@ -180,9 +180,9 @@ const Analytics: React.FC = () => {
             </div>
             <div className="summary-content">
               <div className="summary-label">Total Violations</div>
-              <div className="summary-value">{summary.total_violations}</div>
+              <div className="summary-value">{summary.total_violations || 0}</div>
               <div className="summary-subtext">
-                Avg {summary.daily_average.toFixed(1)}/day
+                Avg {(summary.daily_average || 0).toFixed(1)}/day
               </div>
             </div>
           </div>
@@ -193,11 +193,11 @@ const Analytics: React.FC = () => {
             </div>
             <div className="summary-content">
               <div className="summary-label">Auto Approved</div>
-              <div className="summary-value">{summary.auto_approved}</div>
+              <div className="summary-value">{summary.auto_approved || 0}</div>
               <div className="summary-subtext">
-                {summary.total_violations > 0 
-                  ? ((summary.auto_approved / summary.total_violations) * 100).toFixed(1) 
-                  : 0}% of total
+                {(summary.total_violations || 0) > 0 
+                  ? (((summary.auto_approved || 0) / summary.total_violations) * 100).toFixed(1) 
+                  : '0.0'}% of total
               </div>
             </div>
           </div>
@@ -208,11 +208,11 @@ const Analytics: React.FC = () => {
             </div>
             <div className="summary-content">
               <div className="summary-label">Pending Review</div>
-              <div className="summary-value">{summary.pending_review}</div>
+              <div className="summary-value">{summary.pending_review || 0}</div>
               <div className="summary-subtext">
-                {summary.total_violations > 0
-                  ? ((summary.pending_review / summary.total_violations) * 100).toFixed(1)
-                  : 0}% of total
+                {(summary.total_violations || 0) > 0
+                  ? (((summary.pending_review || 0) / summary.total_violations) * 100).toFixed(1)
+                  : '0.0'}% of total
               </div>
             </div>
           </div>
@@ -223,8 +223,8 @@ const Analytics: React.FC = () => {
             </div>
             <div className="summary-content">
               <div className="summary-label">Total Fines</div>
-              <div className="summary-value">₹{summary.total_fines_inr.toLocaleString()}</div>
-              <div className="summary-subtext">Last {summary.period_days} days</div>
+              <div className="summary-value">₹{(summary.total_fines_inr || 0).toLocaleString()}</div>
+              <div className="summary-subtext">Last {summary.period_days || 7} days</div>
             </div>
           </div>
         </div>
@@ -235,7 +235,7 @@ const Analytics: React.FC = () => {
         <div className="card-header">
           <h3 className="card-title">Violation Trends</h3>
           <span className="chart-subtitle">
-            {trendData?.total_violations} total violations in {period}
+            {trendData?.total_violations || 0} total violations in {period}
           </span>
         </div>
         <ResponsiveContainer width="100%" height={350}>
@@ -302,7 +302,7 @@ const Analytics: React.FC = () => {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
+                label={({ name, percent }) => `${name} ${(percent !== undefined ? (percent * 100).toFixed(0) : '0')}%`}
                 outerRadius={80}
                 fill="#8884d8"
                 dataKey="value"
@@ -340,9 +340,9 @@ const Analytics: React.FC = () => {
                 <p className="heatmap-location">{location.camera_id}</p>
               </div>
               <div className="heatmap-stats">
-                <div className="heatmap-count">{location.count} violations</div>
+                <div className="heatmap-count">{location.count || 0} violations</div>
                 <div className="heatmap-severity">
-                  Avg severity: {location.severity_avg.toFixed(1)}
+                  Avg severity: {(location.severity_avg || 0).toFixed(1)}
                 </div>
               </div>
             </div>
@@ -360,8 +360,8 @@ const Analytics: React.FC = () => {
             {summary.top_cameras.map((camera, index) => (
               <div key={camera.camera_id} className="top-camera-card">
                 <div className="camera-rank-badge">#{index + 1}</div>
-                <div className="camera-id">{camera.camera_id}</div>
-                <div className="camera-count">{camera.count} violations</div>
+                <div className="camera-id">{camera.camera_id || 'Unknown'}</div>
+                <div className="camera-count">{camera.count || 0} violations</div>
               </div>
             ))}
           </div>
