@@ -128,28 +128,47 @@
 .violation-details {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.65rem;
   margin-bottom: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 1rem;
+  border-radius: 8px;
 }
 
 .detail-row {
   display: flex;
   justify-content: space-between;
   font-size: 0.875rem;
+  align-items: center;
 }
 
 .detail-row .label {
   color: #9ca3af;
   font-weight: 500;
+  font-size: 0.8rem;
 }
 
 .detail-row .value {
   color: #e4e6eb;
+  font-weight: 600;
+  font-size: 0.9rem;
 }
 
 .detail-row .value.confidence {
   color: #60a5fa;
-  font-weight: 600;
+  font-weight: 700;
+}
+
+/* Highlight Plate Number */
+.detail-row .value.plate-number {
+  font-family: 'Courier New', monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid rgba(251, 191, 36, 0.3);
 }
 
 .violation-actions {

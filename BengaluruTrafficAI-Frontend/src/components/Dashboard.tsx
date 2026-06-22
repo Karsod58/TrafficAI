@@ -238,51 +238,47 @@ const Dashboard: React.FC = () => {
         <div className="card-header">
           <h3 className="card-title">Recent Violations</h3>
         </div>
-        <div className="violations-table">
-          <table>
-            <thead>
-              <tr>
-                <th>Time</th>
-                <th>Type</th>
-                <th>Camera</th>
-                <th>Plate</th>
-                <th>Confidence</th>
-                <th>Severity</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentViolations.map((v) => (
-                <tr key={v.id}>
-                  <td>{formatTimestamp(v.timestamp)}</td>
-                  <td>
-                    <span className="violation-type">
-                      {v.violation_type.replace(/_/g, ' ')}
+        <div className="recent-violations-grid">
+          {recentViolations.map((v) => (
+            <div key={v.id} className="recent-violation-card">
+              <div className="violation-evidence-thumbnail">
+                {v.image_path ? (
+                  <img
+                    src={`${API_BASE}/evidence/${v.image_path.split('/').pop()}`}
+                    alt="Evidence"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150x100?text=No+Image';
+                    }}
+                  />
+                ) : (
+                  <div className="no-evidence-thumbnail">No Image</div>
+                )}
+                <div className="evidence-overlay">
+                  <span className={`badge ${getSeverityBadge(v.severity)}`}>
+                    {getSeverityText(v.severity)}
+                  </span>
+                </div>
+              </div>
+              <div className="recent-violation-info">
+                <h4 className="violation-type-title">{v.violation_type.replace(/_/g, ' ').toUpperCase()}</h4>
+                <div className="violation-meta">
+                  <span className="meta-item">📷 {v.camera_id}</span>
+                  <span className="meta-item">🚗 {v.plate_number || 'N/A'}</span>
+                  <span className="meta-item">⏰ {formatTimestamp(v.timestamp)}</span>
+                  <span className="meta-item">✓ {(v.confidence * 100).toFixed(1)}%</span>
+                </div>
+                <div className="violation-status">
+                  {v.reviewed ? (
+                    <span className={`status-badge ${v.approved ? 'approved' : 'rejected'}`}>
+                      {v.approved ? '✓ APPROVED' : '✗ REJECTED'}
                     </span>
-                  </td>
-                  <td>{v.camera_id}</td>
-                  <td>{v.plate_number || 'N/A'}</td>
-                  <td>
-                    <span className="confidence">{(v.confidence * 100).toFixed(1)}%</span>
-                  </td>
-                  <td>
-                    <span className={`badge ${getSeverityBadge(v.severity)}`}>
-                      {getSeverityText(v.severity)}
-                    </span>
-                  </td>
-                  <td>
-                    {v.reviewed ? (
-                      <span className={`badge ${v.approved ? 'badge-success' : 'badge-danger'}`}>
-                        {v.approved ? 'APPROVED' : 'REJECTED'}
-                      </span>
-                    ) : (
-                      <span className="badge badge-pending">PENDING</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  ) : (
+                    <span className="status-badge pending">⏳ PENDING</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

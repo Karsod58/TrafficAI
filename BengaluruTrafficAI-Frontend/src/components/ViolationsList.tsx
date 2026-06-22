@@ -190,7 +190,9 @@ const ViolationsList: React.FC = () => {
                 </div>
                 <div className="detail-row">
                   <span className="label">Plate:</span>
-                  <span className="value">{violation.plate_number || 'N/A'}</span>
+                  <span className={`value ${violation.plate_number ? 'plate-number' : ''}`}>
+                    {violation.plate_number || 'N/A'}
+                  </span>
                 </div>
                 <div className="detail-row">
                   <span className="label">Confidence:</span>

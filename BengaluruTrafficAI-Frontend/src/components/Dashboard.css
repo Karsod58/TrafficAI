@@ -141,3 +141,113 @@
     font-size: 1.5rem;
   }
 }
+
+/* Recent Violations Grid with Evidence Thumbnails */
+.recent-violations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+.recent-violation-card {
+  background: #1a1f2e;
+  border: 1px solid #374151;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.recent-violation-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+  border-color: #3b82f6;
+}
+
+.violation-evidence-thumbnail {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  background: #0f1419;
+  overflow: hidden;
+}
+
+.violation-evidence-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.no-evidence-thumbnail {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.evidence-overlay {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+.recent-violation-info {
+  padding: 1rem;
+}
+
+.violation-type-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #e4e6eb;
+  margin: 0 0 0.75rem 0;
+  text-transform: capitalize;
+}
+
+.violation-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.meta-item {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.violation-status {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.status-badge {
+  font-size: 0.75rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.status-badge.approved {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.status-badge.rejected {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.status-badge.pending {
+  background: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+}
