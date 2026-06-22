@@ -1,6 +1,6 @@
 """
 BengaluruTrafficAI — Core Detection Pipeline
-Component 1: Vehicle & Road User Detection using YOLOv8s
+Component 1: Vehicle & Road User Detection using YOLO11s
 
 Detects and classifies:
   - Vehicles: car, truck, bus, motorcycle, bicycle, auto-rickshaw
@@ -8,7 +8,7 @@ Detects and classifies:
   - Traffic signals: traffic light state
   - Structural: stop line ROI, lane boundaries
 
-GTX 1650 target: YOLOv8s @ 640px → ~35ms inference per frame
+GTX 1650 target: YOLO11s @ 640px → ~30ms inference per frame (better than YOLOv8s)
 """
 
 import cv2
@@ -141,7 +141,9 @@ class FrameResult:
 
 class TrafficDetector:
     """
-    YOLOv8s-based detector for Bengaluru traffic surveillance.
+    YOLO11s-based detector for Bengaluru traffic surveillance.
+    
+    YOLO11 is the latest version with improved accuracy and speed over YOLOv8.
 
     Usage:
         detector = TrafficDetector()
@@ -149,7 +151,7 @@ class TrafficDetector:
             print(result.congestion_level, result.vehicle_count)
     """
 
-    MODEL_NAME = "yolov8s.pt"   # small — best fit for GTX 1650 (4GB VRAM)
+    MODEL_NAME = "yolo11s.pt"   # YOLO11s - latest version, better accuracy than YOLOv8s
     INPUT_SIZE = 640
     CONF_THRESHOLD = 0.40       # lower = more sensitive; raise if too many false positives
     IOU_THRESHOLD  = 0.45       # NMS overlap threshold

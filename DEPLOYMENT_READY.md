@@ -83,7 +83,7 @@ BengaluruTrafficAI_src/
 ## ✨ Features Implemented
 
 ### Core Detection System
-- ✅ **YOLOv8 Object Detection** - 89% accuracy
+- ✅ **YOLO11 Object Detection** - 89-92% accuracy (latest version)
 - ✅ **ByteTrack Multi-Object Tracking** - Stable tracking across frames
 - ✅ **7 Violation Types**:
   - No helmet

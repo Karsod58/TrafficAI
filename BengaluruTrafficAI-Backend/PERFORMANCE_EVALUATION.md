@@ -319,7 +319,7 @@ Scalability: Good - Can handle 2-4 streams
 
 ## 📊 Sample Results
 
-### Current System Performance (YOLOv8s + ByteTrack)
+### Current System Performance (YOLO11s + ByteTrack)
 
 ```
 Detection Quality:
