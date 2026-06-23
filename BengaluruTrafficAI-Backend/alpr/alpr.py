@@ -41,7 +41,7 @@ class PlateResult:
 
     @property
     def is_valid(self) -> bool:
-        return bool(self.plate_number) and len(self.plate_number) >= 6 and self.confidence > 0.30  # lowered from 0.40
+        return bool(self.plate_number) and len(self.plate_number) >= 6 and self.confidence > 0.20  # lowered from 0.30 for better detection
 
     def to_dict(self) -> dict:
         return {
@@ -89,13 +89,27 @@ class ALPRModule:
             self.ocr = PaddleOCR(
                 use_angle_cls=True,
                 lang="en",
-                show_log=False
+                show_log=False,
+                use_gpu=False,  # Explicit CPU usage
+                det_db_thresh=0.2,  # Lower detection threshold
+                det_db_box_thresh=0.3,  # Lower box threshold
+                rec_batch_num=6  # Process more text regions at once
             )
-            logger.info("PaddleOCR loaded")
+            logger.info("PaddleOCR loaded with optimized settings")
         except ImportError:
             logger.warning("PaddleOCR not installed. Run: pip install paddleocr paddlepaddle")
         except Exception as e:
             logger.warning(f"PaddleOCR init error: {e}")
+        
+        # Fallback: Try EasyOCR as alternative
+        self.easy_ocr = None
+        if self.ocr is None:
+            try:
+                import easyocr
+                self.easy_ocr = easyocr.Reader(['en'], gpu=False)
+                logger.info("EasyOCR loaded as fallback")
+            except:
+                logger.warning("EasyOCR also not available")
 
     def process(self, frame: np.ndarray, vehicle_bbox) -> Optional[PlateResult]:
         """
@@ -109,14 +123,14 @@ class ALPRModule:
         if vehicle_crop is None:
             return None
         
-        # QUALITY CHECK 1: Skip if crop is too small
+        # QUALITY CHECK 1: Skip if crop is too small (more lenient)
         crop_h, crop_w = vehicle_crop.shape[:2]
-        if crop_w < 80 or crop_h < 60:
+        if crop_w < 60 or crop_h < 40:  # reduced from 80x60
             logger.debug(f"Skipping ALPR: crop too small ({crop_w}x{crop_h})")
             return None
         
-        # QUALITY CHECK 2: Check if crop is blurry (Laplacian variance)
-        if not self._is_image_sharp(vehicle_crop):
+        # QUALITY CHECK 2: Check if crop is blurry (more lenient)
+        if not self._is_image_sharp(vehicle_crop, threshold=50.0):  # reduced from 100.0
             logger.debug("Skipping ALPR: image too blurry")
             return None
 
@@ -125,9 +139,9 @@ class ALPRModule:
         if plate_crop is None:
             return None
         
-        # QUALITY CHECK 3: Validate plate crop quality
+        # QUALITY CHECK 3: Validate plate crop quality (more lenient)
         plate_h, plate_w = plate_crop.shape[:2]
-        if plate_w < 30 or plate_h < 8:
+        if plate_w < 20 or plate_h < 6:  # reduced from 30x8
             logger.debug(f"Skipping ALPR: plate crop too small ({plate_w}x{plate_h})")
             return None
 
@@ -167,16 +181,16 @@ class ALPRModule:
 
     # ── Internal helpers ───────────────────────────────────────────────────────
     
-    def _is_image_sharp(self, image: np.ndarray, threshold: float = 100.0) -> bool:
+    def _is_image_sharp(self, image: np.ndarray, threshold: float = 50.0) -> bool:
         """
         Check if image is sharp enough for OCR using Laplacian variance.
         
         Args:
             image: Input image (BGR or grayscale)
-            threshold: Minimum variance threshold (default 100.0)
-                      - Below 100: Very blurry
-                      - 100-200: Slightly blurry
-                      - Above 200: Sharp
+            threshold: Minimum variance threshold (default 50.0 for low-quality videos)
+                      - Below 50: Very blurry (now more lenient)
+                      - 50-100: Slightly blurry (acceptable)
+                      - Above 100: Sharp
         
         Returns:
             True if image is sharp enough, False otherwise
@@ -391,11 +405,11 @@ class ALPRModule:
         return cv2.cvtColor(bordered, cv2.COLOR_GRAY2BGR)
 
     def _run_ocr(self, plate: np.ndarray) -> tuple[str, float]:
-        """Returns (raw_text, confidence)."""
+        """Returns (raw_text, confidence). Tries multiple OCR engines for better accuracy."""
         if plate is None or plate.size == 0:
             return "", 0.0
 
-        # PaddleOCR path
+        # PaddleOCR path (primary)
         if self.ocr:
             try:
                 # Run OCR multiple times with different preprocessing for better accuracy
@@ -426,7 +440,7 @@ class ALPRModule:
                             avg_cf = sum(confs) / len(confs)
                             
                             # Check if this looks like a valid Indian plate
-                            if len(raw) >= 6 and avg_cf > best_conf:
+                            if len(raw) >= 4 and avg_cf > best_conf:  # reduced min length from 6 to 4
                                 best_text = raw
                                 best_conf = avg_cf
                 
@@ -436,6 +450,27 @@ class ALPRModule:
                     
             except Exception as e:
                 logger.debug(f"PaddleOCR error: {e}")
+        
+        # EasyOCR fallback
+        if self.easy_ocr:
+            try:
+                gray = cv2.cvtColor(plate, cv2.COLOR_BGR2GRAY)
+                results = self.easy_ocr.readtext(gray, detail=1, paragraph=False)
+                
+                if results:
+                    # Combine all text with confidence
+                    texts = [text for (_, text, conf) in results]
+                    confs = [conf for (_, text, conf) in results]
+                    
+                    if texts:
+                        raw = "".join(texts).upper().replace(" ", "")
+                        avg_conf = sum(confs) / len(confs)
+                        
+                        if len(raw) >= 4:
+                            logger.debug(f"EasyOCR result: {raw} (conf={avg_conf:.2f})")
+                            return raw, avg_conf
+            except Exception as e:
+                logger.debug(f"EasyOCR error: {e}")
 
         # Fallback: return empty
         return "", 0.0
