@@ -359,6 +359,34 @@ def process_video_background(
         output = result.stdout
         violations_detected = output.count("VIOLATION")
         
+        # Get violation breakdown from output
+        violation_counts = {}
+        for line in output.split('\n'):
+            if ':' in line and any(v in line for v in ['triple_riding', 'red_light', 'wrong_side', 'stop_line', 'illegal_parking']):
+                parts = line.strip().split(':')
+                if len(parts) == 2:
+                    vtype = parts[0].strip()
+                    try:
+                        count = int(parts[1].strip())
+                        violation_counts[vtype] = count
+                    except:
+                        pass
+        
+        # Get processing stats
+        frames_processed = 0
+        avg_inference_ms = 0.0
+        for line in output.split('\n'):
+            if 'Frames processed' in line:
+                try:
+                    frames_processed = int(line.split(':')[1].strip())
+                except:
+                    pass
+            if 'Avg inference' in line:
+                try:
+                    avg_inference_ms = float(line.split(':')[1].replace('ms/frame', '').strip())
+                except:
+                    pass
+        
         if result.returncode == 0:
             processing_jobs[job_id].status = "completed"
             processing_jobs[job_id].progress = 100
@@ -366,10 +394,14 @@ def process_video_background(
             processing_jobs[job_id].completed_at = datetime.now().timestamp()
             processing_jobs[job_id].results = {
                 "violations_detected": violations_detected,
+                "violation_breakdown": violation_counts,
+                "frames_processed": frames_processed,
+                "avg_inference_ms": avg_inference_ms,
                 "camera_id": camera_id,
-                "evidence_folder": "output/evidence/"
+                "video_source": Path(video_path).name if Path(video_path).exists() else video_path,
+                "evidence_url_pattern": f"/evidence/"  # Frontend will construct full URLs
             }
-            logger.info(f"Job {job_id} completed successfully")
+            logger.info(f"Job {job_id} completed successfully: {violations_detected} violations")
         else:
             raise Exception(f"Processing failed: {result.stderr}")
     

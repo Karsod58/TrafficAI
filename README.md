@@ -44,6 +44,32 @@ uvicorn api.app:app --reload --port 8000
 python main.py --source "YOUR_VIDEO_URL" --camera cam_01
 ```
 
+### Testing the System
+
+A test video is included: `14985167_960_540_25fps.mp4`
+
+**Quick 5-minute test:**
+```bash
+cd BengaluruTrafficAI-Backend
+
+# Test 1: Check video quality
+python core\low_res_handler.py ..\14985167_960_540_25fps.mp4
+
+# Test 2: Test signal detection
+python test_signal_detection.py ..\14985167_960_540_25fps.mp4
+
+# Test 3: Run full detection
+python main.py --source ..\14985167_960_540_25fps.mp4 --camera test_cam --skip 3 --max-frames 300 --show
+```
+
+**Or run automated test suite:**
+```bash
+cd BengaluruTrafficAI-Backend
+run_all_tests.bat
+```
+
+See **TESTING_README.md** for complete testing guide.
+
 ### Frontend Setup
 
 ```bash
@@ -227,20 +253,28 @@ See **RED_LIGHT_FIX_GUIDE.md** for detailed instructions.
 
 ## 📚 Documentation
 
+### Testing & Verification
+- **`TESTING_README.md`** - Complete testing guide (START HERE)
+- `QUICK_TEST.md` - Fast 5-minute system verification
+- `SYSTEM_TEST_GUIDE.md` - Detailed testing procedures
+- `run_all_tests.bat` - Automated test suite
+
 ### Core Documentation
 - `ARCHITECTURE.md` - System architecture
 - `DEPLOYMENT_READY.md` - Deployment guide
 - `TRAINING_GUIDE.md` - Model training information
 
 ### Feature Guides
-- `RED_LIGHT_FIX_GUIDE.md` - **Red light detection troubleshooting** (NEW)
+- `RED_LIGHT_FIX_GUIDE.md` - Red light detection troubleshooting
+- `LOW_QUALITY_VIDEO_GUIDE.md` - Handling 360p/480p videos
 - `ALPR_AND_BATCH_IMPROVEMENTS.md` - License plate recognition & batch processing
-- `INNOVATIVE_FEATURES.md` - Traffic health score details
 - `PERFORMANCE_EVALUATION.md` - Performance metrics guide
 
 ### Backend Tools
 - `test_signal_detection.py` - Test red signal detection
+- `test_video_quality.bat` - Analyze video quality
 - `tools/quick_roi_setup.py` - Interactive ROI configuration
+- `core/low_res_handler.py` - Auto-config for low-res videos
 
 ## 👥 Support
 

@@ -15,8 +15,12 @@ interface UploadJob {
   completed_at?: number;
   results?: {
     violations_detected: number;
+    violation_breakdown?: Record<string, number>;
+    frames_processed?: number;
+    avg_inference_ms?: number;
     camera_id: string;
-    evidence_folder: string;
+    video_source?: string;
+    evidence_url_pattern?: string;
   };
 }
 
@@ -414,14 +418,52 @@ function VideoUpload() {
 
                 {job.results && (
                   <div className="job-results">
-                    <div className="result-item">
-                      <strong>Violations Detected:</strong>{' '}
-                      {job.results.violations_detected}
+                    <div className="result-stats">
+                      <div className="stat-card">
+                        <span className="stat-label">Violations</span>
+                        <span className="stat-value">{job.results.violations_detected}</span>
+                      </div>
+                      {job.results.frames_processed && (
+                        <div className="stat-card">
+                          <span className="stat-label">Frames</span>
+                          <span className="stat-value">{job.results.frames_processed}</span>
+                        </div>
+                      )}
+                      {job.results.avg_inference_ms && (
+                        <div className="stat-card">
+                          <span className="stat-label">Avg Time</span>
+                          <span className="stat-value">{job.results.avg_inference_ms.toFixed(1)}ms</span>
+                        </div>
+                      )}
                     </div>
-                    <div className="result-item">
-                      <strong>Evidence Folder:</strong>{' '}
-                      {job.results.evidence_folder}
-                    </div>
+
+                    {job.results.violation_breakdown && Object.keys(job.results.violation_breakdown).length > 0 && (
+                      <div className="violation-breakdown">
+                        <h5>Violation Breakdown:</h5>
+                        <div className="breakdown-list">
+                          {Object.entries(job.results.violation_breakdown).map(([type, count]) => (
+                            <div key={type} className="breakdown-item">
+                              <span className="breakdown-type">{type.replace(/_/g, ' ')}</span>
+                              <span className="breakdown-count">{count}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {job.results.violations_detected > 0 && (
+                      <div className="result-actions">
+                        <button
+                          className="view-violations-btn"
+                          onClick={() => {
+                            // Navigate to Violations tab filtered by camera
+                            window.location.href = `/#violations?camera=${job.camera_id}`;
+                          }}
+                        >
+                          View Violations →
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

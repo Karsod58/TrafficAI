@@ -15,6 +15,12 @@ import logging
 from typing import Tuple, Dict, Optional
 from dataclasses import dataclass
 from pathlib import Path
+import sys
+import os
+
+# Add parent directory to path for imports when run as script
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from core.preprocessor import PreprocessConfig
 
