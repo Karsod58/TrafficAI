@@ -9,6 +9,7 @@ Handles:
 - Async batch submission
 """
 
+import os
 import requests
 import logging
 import time
@@ -17,6 +18,14 @@ from dataclasses import asdict
 from violations.base import ViolationEvent
 
 logger = logging.getLogger("api_client")
+
+
+def get_api_base_url() -> str:
+    """Resolve API URL from env (Railway sets PORT; API_BASE_URL overrides)."""
+    if url := os.getenv("API_BASE_URL"):
+        return url.rstrip("/")
+    port = os.getenv("PORT", "8000")
+    return f"http://127.0.0.1:{port}"
 
 
 class APIClient:
@@ -30,12 +39,12 @@ class APIClient:
     
     def __init__(
         self,
-        base_url: str = "http://localhost:8000",
+        base_url: Optional[str] = None,
         timeout: int = 5,
         max_retries: int = 3,
-        batch_size: int = 10,
+        batch_size: int = 1,
     ):
-        self.base_url = base_url.rstrip("/")
+        self.base_url = (base_url or get_api_base_url()).rstrip("/")
         self.timeout = timeout
         self.max_retries = max_retries
         self.batch_size = batch_size
@@ -141,14 +150,23 @@ class APIClient:
         
         # Submit individually (could be optimized with bulk endpoint)
         for payload in self.batch_queue:
-            try:
-                self.session.post(
-                    f"{self.base_url}/violations/ingest",
-                    json=payload,
-                    timeout=self.timeout,
-                )
-            except Exception as e:
-                logger.error(f"Batch submission error: {e}")
+            event_id = payload.get("event_id", "?")
+            for attempt in range(self.max_retries):
+                try:
+                    response = self.session.post(
+                        f"{self.base_url}/violations/ingest",
+                        json=payload,
+                        timeout=self.timeout,
+                    )
+                    if response.status_code in (200, 201):
+                        break
+                    logger.error(
+                        f"Ingest failed for {event_id}: HTTP {response.status_code} — {response.text}"
+                    )
+                except Exception as e:
+                    logger.error(f"Batch submission error for {event_id}: {e}")
+                if attempt < self.max_retries - 1:
+                    time.sleep(2 ** attempt)
         
         self.batch_queue.clear()
     
@@ -181,7 +199,7 @@ class APIClient:
             "frame_idx": event.frame_idx,
             "timestamp": event.timestamp,
             "bbox": list(event.bbox) if event.bbox else None,
-            "image_path": event.evidence_frame is not None,  # Simplified
+            "image_path": getattr(event, "image_path", None),
         }
     
     def health_check(self) -> bool:

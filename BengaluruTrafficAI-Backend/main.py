@@ -10,15 +10,17 @@ Usage:
 
 import argparse
 import logging
+import os
 import time
 from pathlib import Path
+from typing import Optional
 
 from core import (
     TrafficDetector, TrackManager, ROIManager,
     VideoPreprocessor, PreprocessConfig, MultiSourceIngestion,
     RuleEngine, AlertPriority, AlertChannel
 )
-from core.api_client import APIClient
+from core.api_client import APIClient, get_api_base_url
 from violations import ViolationPipeline
 from alpr.alpr import ALPRModule
 from utils.evidence import EvidenceGenerator
@@ -86,6 +88,7 @@ def run(
     max_frames:  int  = None,
     save_evidence: bool = True,
     enable_api:  bool = True,
+    api_url: Optional[str] = None,
     enable_preprocessing: bool = True,
     enable_alert_routing: bool = True,
 ):
@@ -145,11 +148,12 @@ def run(
     # API client
     api_client = None
     if enable_api:
-        api_client = APIClient()
+        resolved_url = api_url or get_api_base_url()
+        api_client = APIClient(base_url=resolved_url)
         if api_client.health_check():
-            logger.info("API client connected and ready")
+            logger.info(f"API client connected and ready ({resolved_url})")
         else:
-            logger.warning("API not reachable - violations will not be synced")
+            logger.warning(f"API not reachable at {resolved_url} — violations will not be synced")
             api_client = None
 
     # ── Stats ─────────────────────────────────────────────────────────────────
@@ -245,6 +249,8 @@ def run(
                     event_dict = event.to_dict()
                     if auto_approve_override is not None:
                         event_dict['auto_approve'] = auto_approve_override
+                    if evidence_path:
+                        event_dict['image_path'] = evidence_path
                     api_client.queue_violation_dict(event_dict)
                 except Exception as e:
                     logger.error(f"API submission error: {e}")
@@ -309,6 +315,7 @@ if __name__ == "__main__":
     parser.add_argument("--max-frames",  default=None, type=int)
     parser.add_argument("--no-evidence", action="store_true", help="Skip evidence file saving")
     parser.add_argument("--no-api",      action="store_true", help="Disable API submission")
+    parser.add_argument("--api-url",     default=None,        help="API base URL (default: API_BASE_URL env or http://127.0.0.1:$PORT)")
     parser.add_argument("--no-preproc",  action="store_true", help="Disable preprocessing")
     parser.add_argument("--no-routing",  action="store_true", help="Disable alert routing")
     args = parser.parse_args()
@@ -343,6 +350,7 @@ if __name__ == "__main__":
         max_frames=args.max_frames,
         save_evidence=not args.no_evidence,
         enable_api=not args.no_api,
+        api_url=args.api_url,
         enable_preprocessing=not args.no_preproc,
         enable_alert_routing=not args.no_routing,
     )

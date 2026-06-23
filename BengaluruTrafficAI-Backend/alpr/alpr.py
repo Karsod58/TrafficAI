@@ -16,6 +16,7 @@ Indian plate formats supported:
 """
 
 import re
+import os
 import cv2
 import numpy as np
 import logging
@@ -74,7 +75,7 @@ class ALPRModule:
         self.plate_model = None
         self.ocr = None
 
-        # Load plate detector
+        plate_model_path = plate_model_path or os.getenv("PLATE_MODEL_PATH")
         if plate_model_path:
             try:
                 from ultralytics import YOLO
@@ -137,7 +138,15 @@ class ALPRModule:
         # 2. Detect plate region
         plate_crop, plate_bbox = self._detect_plate(vehicle_crop, vehicle_bbox)
         if plate_crop is None:
-            return None
+            # Fallback: OCR the lower rear of the vehicle when contour/YOLO fails
+            h, w = vehicle_crop.shape[:2]
+            plate_crop = vehicle_crop[int(h * 0.55):, :]
+            plate_bbox = (
+                vehicle_bbox.x1, vehicle_bbox.y1 + int(h * 0.55),
+                vehicle_bbox.x2, vehicle_bbox.y2,
+            )
+            if plate_crop.size == 0:
+                return None
         
         # QUALITY CHECK 3: Validate plate crop quality (more lenient)
         plate_h, plate_w = plate_crop.shape[:2]

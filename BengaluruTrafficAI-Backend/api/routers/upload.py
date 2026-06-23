@@ -328,17 +328,18 @@ def process_video_background(
         
         logger.info(f"Starting processing for job {job_id}")
         
-        # Build command
+        # Build command — ingest violations into the same API/DB (Railway Postgres)
         python_exe = sys.executable
         main_script = Path(__file__).parent.parent.parent / "main.py"
-        
+        api_base = os.getenv("API_BASE_URL") or f"http://127.0.0.1:{os.getenv('PORT', '8000')}"
+
         cmd = [
             python_exe,
             str(main_script),
             "--source", video_path,
             "--camera", camera_id,
             "--skip", str(skip_frames),
-            "--no-api"  # Don't submit to API, just process
+            "--api-url", api_base,
         ]
         
         if max_frames:
